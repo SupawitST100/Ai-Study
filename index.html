@@ -148,38 +148,26 @@
       
       // AI API Integration
       const fetchAIResponse = async (userMessage) => {
-        // NOTE: In production, use a backend proxy to hide your API key
-        // This is a mock implementation for demonstration
-        
-        // Simulated API call delay
-        await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
-        
-        // Mock intelligent responses based on keywords
-        const lowerMsg = userMessage.toLowerCase();
-        
-        if (lowerMsg.includes('refund')) {
-          return "We offer refunds within 7 days of purchase if the script doesn't meet your needs. Please open a support ticket on our Discord with your order ID, and we'll process it promptly.";
+        try {
+          const response = await fetch("http://localhost:5000/chat", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ message: userMessage })
+          });
+
+          if (!response.ok) {
+            throw new Error("Server error");
+          }
+
+          const data = await response.json();
+          return data.response;
+
+        } catch (error) {
+          console.error("AI Error:", error);
+          return "⚠️ Cannot connect to AI server. Make sure Flask is running.";
         }
-        if (lowerMsg.includes('install') || lowerMsg.includes('setup')) {
-          return "Installation is straightforward! Each script comes with detailed documentation. Generally: 1) Download from your dashboard 2) Drag the folder to your resources 3) Add 'ensure scriptname' to server.cfg 4) Configure the config.lua to your liking. Need help with a specific script?";
-        }
-        if (lowerMsg.includes('framework') || lowerMsg.includes('qbcore') || lowerMsg.includes('esx')) {
-          return "Our scripts support multiple frameworks! Most of our resources work with QBCore, ESX, and standalone. Check the product page for specific framework compatibility. We also provide framework conversion support if needed.";
-        }
-        if (lowerMsg.includes('price') || lowerMsg.includes('discount')) {
-          return "Our pricing is transparent with no hidden fees. We occasionally run sales - follow our Discord for announcements! We also offer bundle discounts if you're purchasing 3+ scripts. Would you like me to list current bundles?";
-        }
-        if (lowerMsg.includes('optimize') || lowerMsg.includes('performance') || lowerMsg.includes('resmon')) {
-          return "Performance is our priority! All our scripts are benchmarked to run at 0.00ms-0.01ms idle. We use optimized loops, native handlers, and clean memory management. Each product page shows performance metrics.";
-        }
-        if (lowerMsg.includes('update') || lowerMsg.includes('support')) {
-          return "All purchases include lifetime updates and 6 months of premium support via Discord. Our average response time is under 2 hours. After 6 months, community support continues indefinitely.";
-        }
-        if (lowerMsg.includes('hello') || lowerMsg.includes('hi') || lowerMsg.includes('hey')) {
-          return "Hey there! Welcome to Nexus Scripts. Looking for a specific type of script, or do you have questions about our existing products?";
-        }
-        
-        return "Thanks for your question! For specific technical inquiries or complex issues, I'd recommend joining our Discord for real-time support from our team. Is there anything else I can help you with regarding our scripts, installation, or policies?";
       };
       
       const handleSubmit = async (e) => {
